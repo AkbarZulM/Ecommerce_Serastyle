@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin")
+}
+
+model Customer {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  email           String            @unique
+  password        String
+  phone           String            @db.VarChar(15)
+  address         String            @db.Text
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Product_reviews Product_reviews[]
+  Carts           Carts?
+  Coupons_usage   Coupons_usage[]
+  Orders          Orders[]
+
+  @@map("customer")
+}
+
+model Products {
+  id             Int        @id @default(autoincrement())
+  name           String     @db.VarChar(100)
+  description    String     @db.Text
+  price          Decimal
+  discount_price Decimal?
+  category_id    Int
+  category       Categories @relation(fields: [category_id], references: [id])
+  sku            String     @db.VarChar(100)
+  img_url        String     @db.VarChar(255)
+  is_active      Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  images          Product_images[]
+  Product_reviews Product_reviews[]
+  cart_items      Cart_items[]
+  Order_items     Order_items[]
+
+  @@map("products")
+}
+
+model Product_images {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  product    Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  img_url    String   @db.VarChar(255)
+  is_primary Boolean  @default(false)
+
+  @@map("product_images")
+}
+
+model Product_reviews {
+  id          Int      @id @default(autoincrement())
+  product_id  Int
+  product     Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  customer_id Int
+  customer    Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  rating      Int
+  comment     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("product_reviews")
+}
+
+model Categories {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(100)
+  description String       @db.Text
+  slug        String       @db.VarChar(100)
+  parent_id   Int?
+  parent      Categories?  @relation("CategoryToCategory", fields: [parent_id], references: [id], onDelete: SetNull)
+  children    Categories[] @relation("CategoryToCategory")
+  products    Products[]
+
+  @@map("categories")
+}
+
+model Carts {
+  id          Int          @id @default(autoincrement())
+  customer_id Int          @unique
+  customer    Customer     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  cart_items  Cart_items[]
+
+  @@map("carts")
+}
+
+model Cart_items {
+  id         Int      @id @default(autoincrement())
+  cart_id    Int
+  cart       Carts    @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product_id Int
+  product    Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  quantity   Int
+}
+
+model Coupons {
+  id             Int             @id @default(autoincrement())
+  code           String          @unique @db.VarChar(50)
+  discount_type  String          @db.VarChar(50)
+  discount_value Float
+  min_order      Float
+  max_order      Float?
+  usage_limit    Int?
+  used_count     Int             @default(0)
+  start_date     DateTime
+  end_date       DateTime
+  is_active      Boolean         @default(true)
+  Coupons_usage  Coupons_usage[]
+  ordersId       Int             @unique
+  Orders         Orders          @relation(fields: [ordersId], references: [id])
+
+  @@map("coupons")
+}
+
+model Coupons_usage {
+  id          Int      @id @default(autoincrement())
+  coupon_id   Int
+  coupon      Coupons  @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  customer_id Int
+  customer    Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  used_at     DateTime @default(now())
+
+  @@unique([coupon_id, customer_id])
+  @@map("coupons_usage")
+}
+
+model Orders {
+  id                Int            @id @default(autoincrement())
+  customer_id       Int
+  customer          Customer       @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  total_amount      Float
+  status            OrderStatus    @default(PENDING)
+  payment_method_id Int            @unique
+  payment_method    Payment_method @relation(fields: [payment_method_id], references: [id])
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  order_items       Order_items[]
+  coupons           Coupons?
+
+  @@map("orders")
+}
+
+model Order_items {
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  order      Orders   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product_id Int
+  product    Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  quantity   Int
+  price      Float
+
+  @@map("order_items")
+}
+
+model Payment_method {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Orders      Orders?
+
+  @@map("payment_methods")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELED
+}
