@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\Project Individual\\Portofilio Akbar Vabiansyah\\Project Sempurna\\Ecommerce\\BackEnd\\src\\logs\\.323b49c499cf46d7cc5011d27c187d39fe3fc268-audit.json",
+    "files": [
+        {
+            "date": 1756137778934,
+            "name": "D:\\Project Individual\\Portofilio Akbar Vabiansyah\\Project Sempurna\\Ecommerce\\BackEnd\\src\\logs\\http-2025-08-25.log",
+            "hash": "80667015f9c5762fc3642ee01380e36dc16ccd6af072cdcab763fc9298f592f8"
+        }
+    ],
+    "hashType": "sha256"
+}
