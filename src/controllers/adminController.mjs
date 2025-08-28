@@ -26,7 +26,6 @@ class AdminController {
       );
       // Hapus password dari response
       const { password: _, ...adminWithoutPassword } = admin;
-
       return res.status(201).json({
         status: "success",
         data: adminWithoutPassword,
@@ -47,4 +46,4 @@ class AdminController {
   }
 }
 
-export default AnimationEventdminController;
+export default AdminController;
