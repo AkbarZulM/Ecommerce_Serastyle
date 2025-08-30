@@ -7,6 +7,7 @@ import PrivateRouter from "./routes/private-route.mjs";
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
 app.use(requestLogger);
 app.use(PrivateRouter);
