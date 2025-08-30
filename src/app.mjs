@@ -5,15 +5,11 @@ import errorLogger from "./middlewares/errorLogger.mjs";
 import PrivateRouter from "./routes/private-route.mjs";
 
 dotenv.config();
-const app = express();
 
+const app = express();
 app.use(express.json());
 app.use(requestLogger);
-
-// Routes
 app.use(PrivateRouter);
-
-// error handler sentry
 app.use(errorLogger);
 
 export default app;
