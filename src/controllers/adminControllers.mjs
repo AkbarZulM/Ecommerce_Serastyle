@@ -1,6 +1,7 @@
 import AdminServices from "../services/adminServiec.mjs";
 import { registerSchema } from "../validations/adminValidation.mjs";
 import { validate } from "../middlewares/validation.mjs";
+
 /**
  * @class
  */

@@ -1,12 +1,12 @@
 import express from "express";
-import adminControllers from "../controllers/adminController.mjs";
+import adminControllers from "../controllers/adminControllers.mjs";
 
 const PrivateRouter = express.Router();
 const adminController = new adminControllers();
-// Admin register routes
+
 PrivateRouter.post(
   "/api/register",
-  adminController.validateRegister, // Tambahkan middleware validasi
+  adminController.validateRegister,
   adminController.createAdmin
 );
 
